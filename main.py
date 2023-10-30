@@ -33,7 +33,7 @@ def get_generation_id(prompt):
 
     request = operations.CreateGenerationRequestBody(
         num_images=1,
-        width=1360,
+        width=1224,
         height=768,
         prompt=prompt
     )
