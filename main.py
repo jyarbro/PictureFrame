@@ -12,6 +12,7 @@ def main():
     generation_id = get_generation_id(prompt)
     image_url = get_image_url(generation_id)
     download_image(image_url)
+    delete_image(generation_id)
 
 def get_prompt():
     openai.api_key = secrets["OPENAI_API_KEY"]
@@ -67,6 +68,13 @@ def download_image(image_url):
         
         with open('output.jpg', 'wb') as handler:
             handler.write(image_data)
+
+def delete_image(generation_id):
+    server = leonardoaisdk.LeonardoAiSDK(
+        bearer_auth=secrets["LEONARDO_API_KEY"],
+    )
+    
+    server.generation.delete_generation_by_id(generation_id)
 
 if __name__ == "__main__":
    main()
