@@ -17,8 +17,8 @@ def main():
 def get_prompt():
     openai.api_key = environment["OPENAI_API_KEY"]
     
-    messages = [{"role": "system","content": "You are a prompt generator for other image generation AI tools. Your only purpose is to generate prompts that result in beautiful art for display in a picture frame."}]
-    messages.append({"role": "user","content": "Write an image generator prompt that specifies the medium, style, genre, and subject matter. The prompt must be no more than 50 words. Separate ideas with periods. Talk only about physical things."})
+    messages = [{"role": "system","content": environment["SYSTEM_PROMPT"]}]
+    messages.append({"role": "user","content":  environment["USER_PROMPT"]})
     
     chat = openai.ChatCompletion.create( 
         model="gpt-3.5-turbo",
@@ -54,7 +54,7 @@ def get_image_url(generation_id):
     
     while (image_url == "" and attempts < 10):
         attempts += 1
-        time.sleep(30)
+        time.sleep(10)
         response = server.generation.get_generation_by_id(generation_id)
         if response.get_generation_by_id_200_application_json_object is not None:
             if len(response.get_generation_by_id_200_application_json_object.generations_by_pk.generated_images) > 0:
