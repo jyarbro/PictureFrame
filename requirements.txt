@@ -1,3 +1,2 @@
 Leonardo-Ai-SDK==2.1.7
 openai==0.28.1
-python-dotenv==1.0.0
