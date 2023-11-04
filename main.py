@@ -9,9 +9,16 @@ environment = dotenv_values(".env")
 
 def main():
     prompt = ""
+    count = 0
     
     while (len(prompt) < 10 or len(prompt) > 999):
         prompt = get_prompt()
+        if len(prompt) > 999:
+            print("Prompt too long")
+        count += 1
+        if (count > 10):
+            print("Too many attempts")
+            return
     
     generation_id = get_generation_id(prompt)
     image_url = get_image_url(generation_id)
