@@ -5,7 +5,7 @@ import leonardoaisdk
 from leonardoaisdk.models import operations
 import openai
 
-secrets = dotenv_values(".env")
+environment = dotenv_values(".env")
 
 def main():
     prompt = get_prompt()
@@ -15,7 +15,7 @@ def main():
     delete_image(generation_id)
 
 def get_prompt():
-    openai.api_key = secrets["OPENAI_API_KEY"]
+    openai.api_key = environment["OPENAI_API_KEY"]
     
     messages = [{"role": "system","content": "You are a prompt generator for other image generation AI tools. Your only purpose is to generate prompts that result in beautiful art for display in a picture frame."}]
     messages.append({"role": "user","content": "Write an image generator prompt that specifies the medium, style, genre, and subject matter. The prompt must be no more than 50 words. Separate ideas with periods. Talk only about physical things."})
@@ -29,7 +29,7 @@ def get_prompt():
 
 def get_generation_id(prompt):
     server = leonardoaisdk.LeonardoAiSDK(
-        bearer_auth=secrets["LEONARDO_API_KEY"],
+        bearer_auth=environment["LEONARDO_API_KEY"],
     )
 
     request = operations.CreateGenerationRequestBody(
@@ -46,7 +46,7 @@ def get_generation_id(prompt):
 
 def get_image_url(generation_id):
     server = leonardoaisdk.LeonardoAiSDK(
-        bearer_auth=secrets["LEONARDO_API_KEY"],
+        bearer_auth=environment["LEONARDO_API_KEY"],
     )
 
     image_url = ""
@@ -71,7 +71,7 @@ def download_image(image_url):
 
 def delete_image(generation_id):
     server = leonardoaisdk.LeonardoAiSDK(
-        bearer_auth=secrets["LEONARDO_API_KEY"],
+        bearer_auth=environment["LEONARDO_API_KEY"],
     )
     
     server.generation.delete_generation_by_id(generation_id)
