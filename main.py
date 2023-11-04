@@ -8,7 +8,11 @@ import openai
 environment = dotenv_values(".env")
 
 def main():
-    prompt = get_prompt()
+    prompt = ""
+    
+    while (len(prompt) < 10 or len(prompt) > 999):
+        prompt = get_prompt()
+    
     generation_id = get_generation_id(prompt)
     image_url = get_image_url(generation_id)
     download_image(image_url)
@@ -43,6 +47,8 @@ def get_generation_id(prompt):
 
     if response.create_generation_200_application_json_object is not None:
         return response.create_generation_200_application_json_object.sd_generation_job.generation_id
+    else:
+        print(response.raw_response.text)
 
 def get_image_url(generation_id):
     server = leonardoaisdk.LeonardoAiSDK(
