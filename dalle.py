@@ -1,9 +1,12 @@
 import requests
 from dotenv import dotenv_values
+from dotenv import load_dotenv
 from openai import OpenAI
 
-client = OpenAI()
 environment = dotenv_values(".env")
+load_dotenv()
+
+client = OpenAI()
 
 def main():
     prompt = ""
