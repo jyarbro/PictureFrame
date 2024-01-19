@@ -21,8 +21,10 @@ def main():
             print("Too many attempts")
             return
     
+    print(f"Sending prompt:\n{prompt}")
     image_url = get_image_url(prompt)
     download_image(image_url)
+    print(f"Image downloaded:\n{image_url}")
 
 def get_prompt():
     messages = [{"role": "system","content": environment["SYSTEM_PROMPT"]}]
