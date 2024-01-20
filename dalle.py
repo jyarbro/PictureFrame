@@ -2,8 +2,8 @@ import requests
 from dotenv import dotenv_values
 from dotenv import load_dotenv
 from openai import OpenAI
-from datetime import datetime
-import calendar
+import datetime
+import holidays
 
 environment = dotenv_values(".env")
 load_dotenv()
@@ -13,7 +13,7 @@ client = OpenAI()
 def main():
     prompt = ""
     count = 0
-    
+
     while (len(prompt) < 10 or len(prompt) > 4000):
         prompt = get_prompt()
         if len(prompt) > 4000:
@@ -22,7 +22,7 @@ def main():
         if (count > 10):
             print("Too many attempts")
             return
-    
+
     print(f"Sending prompt:\n{prompt}")
     image_url = get_image_url(prompt)
     download_image(image_url)
@@ -30,13 +30,13 @@ def main():
 
 def get_prompt():
     messages = [{"role": "system","content": "You are a prompt generator for another service that generates images."}]
-    messages.append({"role": "user","content": f"Write a text prompt that I will feed to an image generator. Your text prompt will produce a painting of a scene that is related to the current season of {get_current_season()}. The date is {get_formatted_date()}. Determine if an American holiday is in the next week. If it is, then include it in the prompt. Specify a random painting medium. Specify a random painting style and form. Use articulate adjectives to describe the subject, action, background, environment and specific details. Strong color palettes must be clearly described in detail and emphasized. Choose an emotional theme and include words to describe the emotion that should be evoked by the painting. YOU MUST NOT DESCRIBE WHAT YOU ARE DOING, AND ONLY WRITE THE PROMPT. IT IS IMPERATIVE THAT YOU DO NOT DESCRIBE WHAT  YOU ARE DOING BECAUSE YOU WILL BREAK THE IMAGE GENERATOR SCRIPT."})
-    
-    response = client.chat.completions.create( 
+    messages.append({"role": "user","content": f"Write a text prompt that I will feed to an image generator. Your text prompt will produce a painting of a scene that is related to the current season of {get_current_season()}. {get_holiday_prompt()} Specify a random painting medium. Specify a random painting style and form. Use articulate adjectives to describe the subject, action, background, environment and specific details. Strong color palettes must be clearly described in detail and emphasized. Choose an emotional theme and include words to describe the emotion that should be evoked by the painting. YOU MUST NOT DESCRIBE WHAT YOU ARE DOING, AND ONLY WRITE THE PROMPT. IT IS IMPERATIVE THAT YOU DO NOT DESCRIBE WHAT  YOU ARE DOING BECAUSE YOU WILL BREAK THE IMAGE GENERATOR SCRIPT."})
+
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=messages
     )
-        
+
     return response.choices[0].message.content
 
 def get_image_url(prompt):
@@ -47,18 +47,18 @@ def get_image_url(prompt):
         quality = "hd",
         n=1,
     )
-    
+
     return response.data[0].url
 
 def download_image(image_url):
     if (image_url != ""):
         image_data = requests.get(image_url).content
-        
+
         with open('output.jpg', 'wb') as handler:
             handler.write(image_data)
 
 def get_current_season():
-    today = datetime.now()
+    today = datetime.datetime.now()
     month = today.month
     day = today.day
 
@@ -76,11 +76,22 @@ def get_formatted_date():
     day = today.day
 
     formatted_date = today.strftime("%B the %dth")
-    
+
     if (4 > day > 20) or (24 > day > 30):
         formatted_date.replace("th", ["st", "nd", "rd"][day % 10 - 1])
-        
+
     return formatted_date
+
+def get_holiday_prompt():
+    today = datetime.date.today()
+    one_week_later = today + datetime.timedelta(days=7)
+    us_holidays = holidays.UnitedStates()
+
+    for date, name in sorted(us_holidays.items()):
+        if today <= date <= one_week_later:
+            return f"The next holiday is {name} and must be the central theme of the painting."
+    
+    return ""
 
 if __name__ == "__main__":
    main()
