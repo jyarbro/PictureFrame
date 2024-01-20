@@ -3,6 +3,7 @@ from dotenv import dotenv_values
 from dotenv import load_dotenv
 from openai import OpenAI
 from datetime import datetime
+import calendar
 
 environment = dotenv_values(".env")
 load_dotenv()
@@ -29,7 +30,7 @@ def main():
 
 def get_prompt():
     messages = [{"role": "system","content": "You are a prompt generator for another service that generates images."}]
-    messages.append({"role": "user","content": f"Generate a new image prompt for a painting of a vivid scene that is related to the current season of {get_current_season()} in the month of {datetime.now().month}. Specify a random painting medium. Specify a random painting style and form. Use articulate adjectives to describe the subject, action, background, environment and specific details. Strong color palettes must be clearly described in detail and emphasized."})
+    messages.append({"role": "user","content": f"Write a text prompt that I will feed to an image generator. Your text prompt will produce a painting of a scene that is related to the current season of {get_current_season()}. The date is {get_formatted_date()}. Determine if an American holiday is in the next week. If it is, then include it in the prompt. Specify a random painting medium. Specify a random painting style and form. Use articulate adjectives to describe the subject, action, background, environment and specific details. Strong color palettes must be clearly described in detail and emphasized. Choose an emotional theme and include words to describe the emotion that should be evoked by the painting. YOU MUST NOT DESCRIBE WHAT YOU ARE DOING, AND ONLY WRITE THE PROMPT. IT IS IMPERATIVE THAT YOU DO NOT DESCRIBE WHAT  YOU ARE DOING BECAUSE YOU WILL BREAK THE IMAGE GENERATOR SCRIPT."})
     
     response = client.chat.completions.create( 
         model="gpt-3.5-turbo",
@@ -69,6 +70,17 @@ def get_current_season():
         return "Autumn"
     else:
         return "Winter"
+
+def get_formatted_date():
+    today = datetime.now()
+    day = today.day
+
+    formatted_date = today.strftime("%B the %dth")
+    
+    if (4 > day > 20) or (24 > day > 30):
+        formatted_date.replace("th", ["st", "nd", "rd"][day % 10 - 1])
+        
+    return formatted_date
 
 if __name__ == "__main__":
    main()
